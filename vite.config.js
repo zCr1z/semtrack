@@ -11,8 +11,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'SemTrack',
-        short_name: 'SemTrack',
+        name: 'SemTrackify',
+        short_name: 'SemTrackify',
         description: 'Know your numbers. Control your future.',
         theme_color: '#7c3aed',
         background_color: '#0b0b0f',

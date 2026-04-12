@@ -55,7 +55,12 @@ export function CgpaPredictor({ totalCredits, totalGradePoints, currentCgpa }) {
     <div className="card hover-violet-accent mt-8 rounded-3xl border border-zinc-200/80 bg-white p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.02)] transition-colors dark:border-zinc-700/80 dark:bg-zinc-900 sm:mt-10 sm:p-6">
       <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1">
-          <h3 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Future Goal Predictor</h3>
+          <h3 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+            Future Goal Predictor
+            <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold text-violet-400">
+              Beta
+            </span>
+          </h3>
           <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Calculate minimum effort required to hit a specific threshold.</p>
         </div>
         <div className="w-full sm:w-28">
@@ -73,6 +78,9 @@ export function CgpaPredictor({ totalCredits, totalGradePoints, currentCgpa }) {
       </div>
       <div className="pt-2">
         {content}
+        <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-600">
+          Predictions are approximate and based on current performance.
+        </p>
       </div>
     </div>
   )

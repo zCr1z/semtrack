@@ -26,7 +26,7 @@ export function SplashScreen({ onFinish }) {
           height="48"
         />
         <h1 className="text-2xl font-semibold tracking-tight text-white">
-          SemTrack
+          SemTrackify
         </h1>
         <p className="text-sm text-zinc-400">
           Know your numbers. Control your future.

@@ -34,7 +34,7 @@ export function Header({ gpaDisplay, totalCredits, totalGradePoints, darkMode, o
             />
             <div className="min-w-0">
               <h1 className="hdr-h1 font-sans font-semibold tracking-tight text-zinc-950 dark:text-white">
-                SemTrack
+                SemTrackify
               </h1>
               <p className="header-tagline max-w-md text-left text-[13px] leading-snug text-zinc-500 sm:text-sm dark:text-zinc-400">
                 Know your numbers. Control your future.
