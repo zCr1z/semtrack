@@ -4,14 +4,11 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import { registerSW } from 'virtual:pwa-register'
-import { inject } from '@vercel/analytics'
 
 registerSW({
   onOfflineReady() {},
   onNeedRefresh() {}
 })
-
-inject()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
