@@ -1,87 +1,145 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-export function CgpaPredictor({ totalCredits, totalGradePoints, currentCgpa }) {
-  const [targetStr, setTargetStr] = useState('')
-  const targetCGPA = parseFloat(targetStr)
+export function CgpaPredictor({ totalCredits, totalGradePoints, onTargetCgpaChange }) {
+  const [targetCGPA, setTargetCGPA] = useState(9.00)
+  const [nextCredits, setNextCredits] = useState(20)
+  const [isOpen, setIsOpen] = useState(totalCredits === 0)
+
+  useEffect(() => {
+    setIsOpen(totalCredits === 0)
+  }, [totalCredits])
+
+  useEffect(() => {
+    if (typeof onTargetCgpaChange !== 'function') return
+    if (totalCredits === 0) {
+      onTargetCgpaChange(null)
+      return
+    }
+    onTargetCgpaChange(Number(targetCGPA.toFixed(2)))
+  }, [targetCGPA, totalCredits, onTargetCgpaChange])
 
   if (totalCredits === 0) {
-    return null
+    return (
+      <details open={isOpen} onToggle={(e) => setIsOpen(e.currentTarget.open)} className="group mt-6 min-h-[140px] sm:mt-8 rounded-3xl border border-zinc-200/80 bg-white shadow-[0_2px_12px_-4px_rgba(0,0,0,0.02)] transition-colors dark:border-zinc-700/80 dark:bg-zinc-900 opacity-60">
+        <summary className="flex cursor-pointer list-none items-center justify-between p-5 sm:p-6 outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40 rounded-3xl">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Future Goal Predictor
+            </h3>
+            <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold text-violet-400">Beta</span>
+          </div>
+          <ChevronIcon className="h-4 w-4 text-zinc-400 transition-transform duration-300 group-open:rotate-180" />
+        </summary>
+        <div className="border-t border-zinc-100 px-5 pb-5 pt-4 dark:border-zinc-800 sm:px-6">
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 py-1">Add semesters first to unlock predictions.</p>
+        </div>
+      </details>
+    )
   }
 
-  let content = null
+  const requiredGPA = (targetCGPA * (totalCredits + nextCredits) - totalGradePoints) / nextCredits
 
-  if (isNaN(targetCGPA) || targetCGPA <= 0 || targetCGPA > 10) {
-    content = <p className="text-sm text-zinc-500 dark:text-zinc-400 py-1">Enter a target CGPA (up to 10.0) to mathematically project your required future grades.</p>
-  } else if (targetCGPA <= (currentCgpa || 0)) {
-    content = <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 py-1">You have already reached this CGPA! 🎉</p>
-  } else if (targetCGPA >= 10 && (currentCgpa || 0) < 10) {
-    content = <p className="text-sm font-medium text-red-500 dark:text-red-400 py-1">Target is mathematically impossible.</p>
+  let content = null
+  if (requiredGPA > 10) {
+    content = <p className="font-bold text-red-500 dark:text-red-400 text-lg">Not possible 😬</p>
+  } else if (requiredGPA <= 0) {
+    content = <p className="font-bold text-emerald-500 dark:text-emerald-400 text-lg">Already achieved 🎉</p>
   } else {
-    // x = (targetCGPA * currentCredits - currentGradePoints) / (10 - targetCGPA)
-    const exactCredits = (targetCGPA * totalCredits - totalGradePoints) / (10 - targetCGPA)
-    const requiredCredits = Math.ceil(exactCredits * 10) / 10 
+    let diffLabel = ''
+    let diffColor = ''
+    let diffMsg = ''
     
-    // Approximate into subjects
-    const subjects4 = Math.ceil(exactCredits / 4)
-    const subjects3 = Math.ceil(exactCredits / 3)
+    if (requiredGPA >= 9.8) {
+      diffLabel = 'Very Tough 🔴'
+      diffColor = 'text-red-500 dark:text-red-400'
+      diffMsg = 'You’ll need near perfect grades 😬'
+    } else if (requiredGPA >= 9.2) {
+      diffLabel = 'Moderate 🟠'
+      diffColor = 'text-orange-500 dark:text-orange-400'
+      diffMsg = 'A bit of a grind, but doable 💪'
+    } else {
+      diffLabel = 'Easy 🟢'
+      diffColor = 'text-green-500 dark:text-green-400'
+      diffMsg = "You're in a comfortable zone 😌"
+    }
 
     content = (
-      <div className="flex flex-col gap-3">
-        <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
-          To reach <span className="font-bold text-violet-600 dark:text-violet-400">{targetCGPA.toFixed(2)} CGPA</span> (best-case scenario):
+      <div className="flex flex-col items-center gap-1">
+        <p className="text-[15px] font-medium text-zinc-700 dark:text-zinc-200">
+          You need a GPA of <span className="text-xl font-bold text-violet-600 dark:text-violet-400">{requiredGPA.toFixed(2)}</span> next semester
         </p>
-        <div className="rounded-2xl border border-violet-100/50 bg-violet-50/50 p-4 dark:border-violet-500/10 dark:bg-violet-500/5">
-          <p className="mb-2.5 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-            You need approximately <span className="font-bold tabular-nums text-violet-700 dark:text-violet-300">{requiredCredits}</span> future credits, assuming all are scored at grade S (10 points).
-          </p>
-          <ul className="ml-5 list-disc space-y-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-            <li>~<span className="font-medium tabular-nums text-zinc-900 dark:text-zinc-100">{subjects4}</span> subjects (4 credits)</li>
-            <li>~<span className="font-medium tabular-nums text-zinc-900 dark:text-zinc-100">{subjects3}</span> subjects (3 credits)</li>
-          </ul>
-          {exactCredits > 30 && (
-            <p className="mt-4 text-[13px] font-medium leading-relaxed text-amber-600 dark:text-amber-500">
-              ⚠️ This may require multiple semesters of top performance.
-            </p>
-          )}
-        </div>
-        <p className="mt-0.5 text-[11px] italic text-zinc-400 dark:text-zinc-500">
-          * Assumes future grades are S (10 points)
-        </p>
+        <div className={`mt-2 font-bold text-sm ${diffColor}`}>{diffLabel}</div>
+        <p className="text-[13px] text-zinc-500 dark:text-zinc-400">{diffMsg}</p>
       </div>
     )
   }
 
   return (
-    <div className="card hover-violet-accent mt-8 rounded-3xl border border-zinc-200/80 bg-white p-5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.02)] transition-colors dark:border-zinc-700/80 dark:bg-zinc-900 sm:mt-10 sm:p-6">
-      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex-1">
-          <h3 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            Future Goal Predictor
-            <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold text-violet-400">
-              Beta
-            </span>
-          </h3>
-          <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Calculate minimum effort required to hit a specific threshold.</p>
+    <details open={isOpen} onToggle={(e) => setIsOpen(e.currentTarget.open)} className="group mt-6 min-h-[220px] sm:mt-8 rounded-3xl border border-zinc-200/80 bg-white shadow-[0_2px_12px_-4px_rgba(0,0,0,0.02)] transition-colors dark:border-zinc-700/80 dark:bg-zinc-900">
+      <summary className="flex cursor-pointer list-none flex-col sm:flex-row sm:items-center justify-between p-5 sm:p-6 outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40 rounded-3xl relative">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                Future Goal Predictor
+              </h3>
+              <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold text-violet-400">Interactive</span>
+            </div>
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Simulate required GPA loads</p>
+          </div>
+          <ChevronIcon className="h-5 w-5 text-zinc-400 transition-transform duration-300 group-open:rotate-180" />
         </div>
-        <div className="w-full sm:w-28">
+      </summary>
+      
+      <div className="border-t border-zinc-100 px-5 pb-6 pt-4 dark:border-zinc-800 sm:px-6 space-y-6">
+        <div>
+          <div className="mb-2 flex justify-between items-center text-sm">
+            <label className="font-medium text-zinc-700 dark:text-zinc-300">Target CGPA</label>
+            <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-semibold tabular-nums text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
+              {Number(targetCGPA).toFixed(2)}
+            </span>
+          </div>
           <input
-            type="number"
-            step="0.01"
-            min="0"
+            type="range"
+            min="8"
             max="10"
-            placeholder="Target"
-            value={targetStr}
-            onChange={(e) => setTargetStr(e.target.value)}
-            className="apply-focus-glow input-hover-violet w-full rounded-xl border border-zinc-200/90 bg-zinc-50/80 px-3 py-2 text-center text-sm font-medium tabular-nums text-zinc-900 shadow-inner shadow-zinc-900/[0.02] outline-none transition-[border-color,box-shadow,background-color] duration-200 ease-out placeholder:text-zinc-400 focus:bg-white dark:border-zinc-700/90 dark:bg-zinc-950/60 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+            step="0.01"
+            value={targetCGPA}
+            onChange={(e) => setTargetCGPA(parseFloat(e.target.value))}
+            className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-violet-600 transition-colors"
           />
         </div>
+
+        <div>
+          <div className="mb-2 flex justify-between items-center text-sm">
+            <label className="font-medium text-zinc-700 dark:text-zinc-300">Next Semester Credits</label>
+            <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-semibold tabular-nums text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
+              {nextCredits}
+            </span>
+          </div>
+          <input
+            type="range"
+            min="10"
+            max="30"
+            step="1"
+            value={nextCredits}
+            onChange={(e) => setNextCredits(parseInt(e.target.value))}
+            className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-violet-600 transition-colors"
+          />
+        </div>
+
+        <div className="rounded-2xl border border-violet-100/50 bg-violet-50/50 p-4 text-center shadow-inner dark:border-violet-500/10 dark:bg-violet-500/5">
+          {content}
+        </div>
       </div>
-      <div className="pt-2">
-        {content}
-        <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-600">
-          Predictions are approximate and based on current performance.
-        </p>
-      </div>
-    </div>
+    </details>
+  )
+}
+
+function ChevronIcon({ className }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+    </svg>
   )
 }

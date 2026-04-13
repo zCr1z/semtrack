@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5">
-              <img src="/logo.svg" alt="SemTrackify" className="h-6 w-6" />
+              <img src="/logo.svg" alt="SemTrackify" className="h-6 w-6" width="24" height="24" />
               <span className="text-base font-semibold text-zinc-900 dark:text-white">SemTrackify</span>
             </div>
             <p className="mt-2 max-w-xs text-sm leading-relaxed text-zinc-500 dark:text-zinc-500">
@@ -49,9 +49,9 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 border-t border-zinc-100 pt-6 dark:border-zinc-800/60">
-          <p className="text-center text-xs text-zinc-400 dark:text-zinc-600">
-            © {new Date().getFullYear()} SemTrackify. All rights reserved.
-          </p>
+          <div className="flex flex-col items-center gap-4 text-center text-xs text-zinc-500 dark:text-zinc-300">
+            <p>© {new Date().getFullYear()} SemTrackify. All rights reserved.</p>
+          </div>
         </div>
       </div>
     </footer>

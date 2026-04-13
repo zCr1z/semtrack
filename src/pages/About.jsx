@@ -7,7 +7,7 @@ export default function About() {
       <div className="border-b border-zinc-200/60 bg-white/80 backdrop-blur dark:border-zinc-800/60 dark:bg-zinc-950/80">
         <div className="mx-auto flex max-w-4xl items-center gap-4 px-4 py-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <img src="/logo.svg" alt="SemTrackify" className="h-7 w-7" />
+            <img src="/logo.svg" alt="SemTrackify" className="h-7 w-7" width="28" height="28" />
             <span className="text-base font-semibold text-zinc-900 group-hover:text-violet-700 transition-colors dark:text-white dark:group-hover:text-violet-400">
               SemTrackify
             </span>

@@ -7,12 +7,8 @@ import { registerSW } from 'virtual:pwa-register'
 import { inject } from '@vercel/analytics'
 
 registerSW({
-  onOfflineReady() {
-    console.log('App ready for offline use')
-  },
-  onNeedRefresh() {
-    console.log('New version available')
-  }
+  onOfflineReady() {},
+  onNeedRefresh() {}
 })
 
 inject()

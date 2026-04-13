@@ -39,7 +39,7 @@ export function Table({ rows, newRowIds, onRowChange, onRowRemove, onAddRow, foc
   }, [rows, focusNewRowIdRef])
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-zinc-200/75 bg-white shadow-[0_4px_24px_-8px_rgba(139,92,246,0.05),0_4px_24px_-8px_rgba(0,0,0,0.06)] dark:border-zinc-700/80 dark:bg-zinc-900 dark:shadow-[0_4px_28px_-10px_rgba(0,0,0,0.5)] sm:overflow-hidden sm:rounded-3xl">
+    <div className="animate-card-in overflow-x-auto rounded-2xl border border-zinc-200/75 bg-white shadow-[0_4px_24px_-8px_rgba(139,92,246,0.05),0_4px_24px_-8px_rgba(0,0,0,0.06)] dark:border-zinc-700/80 dark:bg-zinc-900 dark:shadow-[0_4px_28px_-10px_rgba(0,0,0,0.5)] sm:overflow-hidden sm:rounded-3xl">
       <div className="min-w-[34rem] sm:min-w-0">
         <div
           className="hidden grid-cols-[minmax(0,1.25fr)_5.25rem_5.75rem_3.5rem_4.25rem_2.75rem] gap-x-4 gap-y-0 border-b border-zinc-100/90 bg-gradient-to-r from-violet-50/35 via-zinc-50/98 to-zinc-50/95 px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500 dark:border-zinc-800 dark:from-zinc-900/95 dark:via-zinc-900/95 dark:to-zinc-900/95 dark:text-zinc-400 sm:grid"

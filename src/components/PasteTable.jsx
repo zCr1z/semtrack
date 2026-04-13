@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { parseTableText } from '../utils/parseTable.js'
+import { parseTableText, parseGradeHistory } from '../utils/parseTable.js'
 
 export function PasteTable({ onParsed }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -24,19 +24,47 @@ export function PasteTable({ onParsed }) {
       return
     }
 
-    const result = parseTableText(text)
-    if (result.parsedCount === 0) {
-      setMessage({ type: 'error', text: 'No valid subjects detected. Please check your input.' })
-      return
+    let parsed;
+    let isHistory = false;
+
+    if (text.includes("Exam Month")) {
+      parsed = parseGradeHistory(text);
+      isHistory = true;
+      if (!parsed || parsed.length === 0) {
+        setMessage({ type: 'error', text: '⚠️ Could not detect valid VTOP format. Try copying full table.' })
+        return
+      }
+
+      const hasValidSubjects = parsed.some(sem => sem.subjects && sem.subjects.length > 0);
+      if (!hasValidSubjects) {
+        setMessage({ type: 'error', text: '⚠️ No valid subjects detected.' })
+        return
+      }
+
+      parsed = parsed.map((sem, index) => ({
+        ...sem,
+        name: `Sem ${index + 1}`
+      }));
+    } else {
+      parsed = parseTableText(text);
+      if (!parsed || parsed.parsedCount === 0) {
+        setMessage({ type: 'error', text: '⚠️ Could not detect valid VTOP format. Try copying full table.' })
+        return
+      }
     }
 
-    onParsed(result)
-    
-    let msg = `Parsed ${result.parsedCount} subjects`
-    if (result.skippedCount > 0) {
-      msg += ` (${result.skippedCount} skipped)`
+    onParsed(parsed, isHistory)
+
+    if (isHistory) {
+      const totalSubs = parsed.reduce((acc, sem) => acc + sem.subjects.length, 0);
+      setMessage({ type: 'success', text: `Added ${parsed.length} semesters (${totalSubs} subjects)` })
+    } else {
+      let msg = `Parsed ${parsed.parsedCount} subjects`
+      if (parsed.skippedCount > 0) {
+        msg += ` (${parsed.skippedCount} skipped)`
+      }
+      setMessage({ type: 'success', text: msg })
     }
-    setMessage({ type: 'success', text: msg })
   }
 
   const handleClear = () => {
@@ -46,11 +74,12 @@ export function PasteTable({ onParsed }) {
   }
 
   return (
-    <div className="card mt-4 overflow-hidden rounded-2xl border border-zinc-200/75 bg-white shadow-sm dark:border-zinc-700/80 dark:bg-zinc-900 sm:rounded-3xl">
+    <div className="card animate-card-in mt-4 overflow-hidden rounded-2xl border border-zinc-200/75 bg-white shadow-sm dark:border-zinc-700/80 dark:bg-zinc-900 sm:rounded-3xl">
       <button
         type="button"
         onClick={handleToggle}
         className="flex w-full items-center justify-between bg-zinc-50/50 px-5 py-4 text-sm font-medium text-zinc-700 transition-colors hover:bg-violet-50/50 dark:bg-zinc-900/50 dark:text-zinc-300 dark:hover:bg-zinc-800/80 sm:px-6"
+        aria-label="Toggle paste table parser"
       >
         <div className="flex items-center gap-2">
           <ClipboardIcon className="h-4 w-4 text-violet-500/80 dark:text-violet-400/80" />
@@ -68,14 +97,16 @@ export function PasteTable({ onParsed }) {
             placeholder="Paste your Result - Grade View table here..."
             className="apply-focus-glow input-hover-violet h-32 w-full resize-y rounded-xl border border-zinc-200 bg-zinc-50/50 p-3 text-[13px] text-zinc-800 placeholder:text-zinc-400 transition-[border-color,background-color] duration-200 ease-out focus:bg-white focus:outline-none dark:border-zinc-700 dark:placeholder:text-zinc-600 sm:text-sm"
           />
+          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+            Copy table from VTOP → paste here
+          </p>
 
           {message && (
             <div
-              className={`mt-3 rounded-xl px-4 py-2.5 text-[13px] font-medium ${
-                message.type === 'success'
+              className={`mt-3 rounded-xl px-4 py-2.5 text-[13px] font-medium ${message.type === 'success'
                   ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400'
                   : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400'
-              }`}
+                }`}
             >
               {message.text}
             </div>
@@ -85,21 +116,23 @@ export function PasteTable({ onParsed }) {
             <button
               type="button"
               onClick={handleParse}
-              className="button-gradient hover-violet-accent relative flex-1 overflow-hidden rounded-xl border border-transparent bg-violet-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 active:scale-[0.98] dark:bg-violet-500 dark:hover:bg-violet-600 dark:focus-visible:ring-offset-zinc-900"
+              className="button-gradient hover-violet-accent relative flex-1 overflow-hidden rounded-xl border border-transparent bg-violet-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:scale-[1.03] hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 active:scale-[0.97] dark:bg-violet-500 dark:hover:bg-violet-600 dark:focus-visible:ring-offset-zinc-900"
+              aria-label="Parse pasted table data"
             >
               <span className="relative z-[1]">Parse Table Data</span>
             </button>
             <button
               type="button"
               onClick={handleClear}
-              className="rounded-xl border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium text-zinc-600 shadow-sm transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 active:scale-[0.98] dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:focus-visible:ring-offset-zinc-900"
+              className="rounded-xl border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium text-zinc-600 shadow-sm transition-all duration-200 hover:scale-[1.03] hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 active:scale-[0.97] dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:focus-visible:ring-offset-zinc-900"
+              aria-label="Clear pasted table input"
             >
               Clear Input
             </button>
           </div>
 
           <p className="mt-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
-            Note: Some non-credit courses may be included. Please remove them manually if needed.
+            ✓ Works with VTOP Grades & Grade History
           </p>
         </div>
       )}

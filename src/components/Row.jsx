@@ -46,7 +46,7 @@ function creditsKeyDownFilter(e, current) {
  *   onAddRow: () => void
  * }} props
  */
-function _Row({
+function RowComponent({
   row,
   onChange,
   onRemove,
@@ -239,7 +239,8 @@ function _Row({
         <button
           type="button"
           onClick={handleDelete}
-          className="flex h-11 w-11 items-center justify-center rounded-xl text-zinc-400 opacity-80 transition-all duration-200 hover:bg-red-50 hover:text-red-600 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/40 active:scale-95 dark:text-zinc-500 dark:hover:bg-red-950/60 dark:hover:text-red-400 sm:h-9 sm:w-9 sm:opacity-0 sm:group-hover:opacity-100"
+          title="Delete subject"
+          className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-500/[0.08] text-red-400 transition-all duration-200 hover:bg-red-500/20 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/40 active:scale-95 dark:bg-red-500/10 dark:text-red-400/70 dark:hover:bg-red-950/60 dark:hover:text-red-400"
           aria-label={`Remove ${row.subject || 'subject'}`}
         >
           <TrashIcon className="h-4 w-4" />
@@ -249,7 +250,7 @@ function _Row({
   )
 }
 
-export const Row = memo(_Row, (prev, next) => {
+export const Row = memo(RowComponent, (prev, next) => {
   return (
     prev.row === next.row &&
     prev.isNew === next.isNew &&

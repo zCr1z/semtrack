@@ -91,6 +91,17 @@
   }
 }
 
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes row-exit {
   from {
     opacity: 1;
@@ -133,6 +144,11 @@
 
 .animate-row-enter {
   animation: row-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-card-in {
+  animation: card-enter 0.2s ease both;
+  will-change: transform, opacity;
 }
 
 .animate-row-exit {
@@ -614,6 +630,10 @@ textarea.input-hover-violet:hover:not(:focus):not(:focus-visible) {
 .button-gradient > * {
   position: relative;
   z-index: 1;
+}
+
+.button-gradient:active {
+  box-shadow: inset 0 0 0 999px rgba(17, 24, 39, 0.06);
 }
 
 @media (hover: hover) and (pointer: fine) {
